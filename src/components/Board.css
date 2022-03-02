@@ -1,0 +1,7 @@
+.tile {
+  @apply w-20 h-20 outline outline-gray-200 rounded-md font-bold text-3xl;
+}
+
+.tile:disabled {
+  background-color: darkgray;
+}

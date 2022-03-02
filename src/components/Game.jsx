@@ -39,15 +39,68 @@ export default function Game() {
   const [clicks, setClicks] = useState([]);
 
 
+  /**
+   * Do something when a tile is clicked
+   * @param {int} index index of the tile being clicked
+   * 
+   * 1. increase clickCount
+   * 2. - the first click: 
+   *      1. reveal the tile
+   *    - the second click: 
+   *      - reveal the tile 
+   *      - if matches with the first click: 
+   *        1. mark both tiles as completed 
+   *        2. reavel the tile for 1s
+   *        3. reset clicks
+   *        4. increase score by 10
+   *      - mismatch with first click: 
+   *        1. reset clicks
+   *        2. decrease the score by 2
+   *        3. reveal the tile for 1s
+   *    - more than two clicks: ignore it 
+   */
   const handleTileClick = (index) => {
-    /**
-     * if the two recent clicks match: 
-     *  - increase the score by 10 
-     * else: 
-     *  - decrease the score by -2
-     * increase the clickCount by 1 
-     */
+    // third click: ignore 
+    if (clicks.length === 2) return;
+
+    // increase the clickCount
+    setClickCount(clickCount + 1);
+
+    // first click: 
+    if (clicks.length === 0) {
+      setClicks([index]);
+      return;
+    }
+
+    // second click:
+    setClicks(clicks.concat([index]));
+    // match
+    if (tiles[index].value === tiles[clicks[0]].value) {
+      const newTiles = tiles.slice();
+      newTiles[index].completed = true;
+      newTiles[clicks[0]].completed = true;
+      setTiles(newTiles);
+      setScore(score + 10);
+    } else {
+      setScore(score - 2);
+    }
+
+    // hide letters after 1s. 
+    // INFO: basically clear the clicks array, since only tiles inside the clicks array are revealed 
+    setTimeout(() => {
+      setClicks([]);
+    }, 1000);
   }
+
+  const restartGame = () => {
+    /**
+     * TODO: restart the game 
+     */
+    setClickCount(0);
+    setScore(0);
+    setTiles(generateTiles());
+    setClicks([]);
+  };
 
   return (
     <div className="flex flex-col items-center container px-4 max-w-screen-md mx-auto gap-y-4">
@@ -62,7 +115,7 @@ export default function Game() {
       </div>
 
       {/* Board */}
-      <Board tiles={tiles} />
+      <Board tiles={tiles} handleTileClick={handleTileClick} clicks={clicks} />
 
       {/* Clicks */}
       <div className="bg-cyan-100 text-cyan-900 py-4 px-6 rounded-md w-full">
@@ -75,7 +128,7 @@ export default function Game() {
       </div>
 
       {/* Restart Button */}
-      <button className="bg-yellow-500 px-4 py-2 rounded-md self-start">
+      <button className="bg-yellow-500 px-4 py-2 rounded-md self-start" onClick={restartGame}>
         Restart
       </button>
     </div>
